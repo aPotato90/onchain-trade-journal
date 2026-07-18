@@ -1,11 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { readContractQueryOptions } from 'wagmi/query'
-import { config } from '@/config/wagmi'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { useQueryClient } from '@tanstack/react-query'
 import { baseSepolia } from 'wagmi/chains'
 import { TRADE_JOURNAL_ADDRESS, tradeJournalAbi } from '@/config/tradeJournal'
 
@@ -20,11 +17,11 @@ export function TradeForm() {
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
   const queryClient = useQueryClient()
 
-useEffect(() => {
-  if (isSuccess) {
-    queryClient.invalidateQueries({ queryKey: ['readContract'] })
-  }
-}, [isSuccess, queryClient])
+  useEffect(() => {
+    if (isSuccess) {
+      queryClient.invalidateQueries({ queryKey: ['readContract'] })
+    }
+  }, [isSuccess, queryClient])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -43,20 +40,71 @@ useEffect(() => {
     })
   }
 
+  const inputClass =
+    "w-full bg-transparent border border-border rounded px-3 py-2.5 font-mono text-sm placeholder:text-muted focus:outline-none focus:border-gold transition-colors"
+  const labelClass = "font-mono text-[11px] tracking-widest text-muted uppercase mb-1.5 block"
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full max-w-sm">
-      <input value={instrument} onChange={(e) => setInstrument(e.target.value)} placeholder="Instrument (e.g. XAU/USD)" className="border p-2 rounded" />
-      <input value={setupTag} onChange={(e) => setSetupTag(e.target.value)} placeholder="Setup (e.g. Bullish Engulfing)" className="border p-2 rounded" />
-      <input value={entryPrice} onChange={(e) => setEntryPrice(e.target.value)} placeholder="Entry price" type="number" step="0.01" className="border p-2 rounded" />
-      <input value={exitPrice} onChange={(e) => setExitPrice(e.target.value)} placeholder="Exit price" type="number" step="0.01" className="border p-2 rounded" />
-      <label className="flex items-center gap-2">
-        <input type="checkbox" checked={isLong} onChange={(e) => setIsLong(e.target.checked)} />
-        Long position
-      </label>
-      <button type="submit" disabled={isPending || isConfirming} className="border p-2 rounded font-medium">
-        {isPending ? 'Confirm in Wallet...' : isConfirming ? 'Logging...' : 'Log Trade'}
-      </button>
-      {isSuccess && <p>Trade logged onchain!</p>}
-    </form>
+    <div className="border border-border rounded-lg bg-surface p-6">
+      <p className="font-mono text-[11px] tracking-widest text-muted uppercase mb-5">
+        New Entry
+      </p>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass}>Instrument</label>
+            <input value={instrument} onChange={(e) => setInstrument(e.target.value)} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Setup</label>
+            <input value={setupTag} onChange={(e) => setSetupTag(e.target.value)} placeholder="Bullish Engulfing" className={inputClass} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass}>Entry price</label>
+            <input value={entryPrice} onChange={(e) => setEntryPrice(e.target.value)} type="number" step="0.01" placeholder="0.00" className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Exit price</label>
+            <input value={exitPrice} onChange={(e) => setExitPrice(e.target.value)} type="number" step="0.01" placeholder="0.00" className={inputClass} />
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setIsLong(true)}
+            className={`flex-1 py-2 rounded font-mono text-xs tracking-wide uppercase border transition-colors ${
+              isLong ? 'bg-win/10 border-win text-win' : 'border-border text-muted hover:border-win/50'
+            }`}
+          >
+            Long
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsLong(false)}
+            className={`flex-1 py-2 rounded font-mono text-xs tracking-wide uppercase border transition-colors ${
+              !isLong ? 'bg-loss/10 border-loss text-loss' : 'border-border text-muted hover:border-loss/50'
+            }`}
+          >
+            Short
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isPending || isConfirming}
+          className="mt-2 py-3 rounded font-mono text-sm tracking-wide uppercase bg-gold text-[#0A0E14] font-medium hover:opacity-90 transition-opacity disabled:opacity-40"
+        >
+          {isPending ? 'Confirm in wallet...' : isConfirming ? 'Logging onchain...' : 'Log trade'}
+        </button>
+
+        {isSuccess && (
+          <p className="font-mono text-xs text-win text-center">Trade logged onchain</p>
+        )}
+      </form>
+    </div>
   )
 }
