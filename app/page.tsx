@@ -8,7 +8,7 @@ export default function Home() {
       <header className="w-full max-w-3xl flex items-center justify-between border-b border-border pb-6">
         <div>
           <p className="font-mono text-xs tracking-widest text-gold uppercase mb-1">
-            Onchain · Base Sepolia
+            Onchain · Base
           </p>
           <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight">
             Trade Journal
