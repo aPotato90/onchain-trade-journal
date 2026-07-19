@@ -1,6 +1,7 @@
 import { ConnectWallet } from './components/ConnectWallet'
 import { TradeForm } from './components/TradeForm'
 import { JournalView } from './components/JournalView'
+import { AboutModal } from './components/AboutModal'
 
 export default function Home() {
   return (
@@ -14,7 +15,10 @@ export default function Home() {
             Trade Journal
           </h1>
         </div>
-        <ConnectWallet />
+        <div className="flex items-center gap-3">
+          <AboutModal />
+          <ConnectWallet />
+        </div>
       </header>
 
       <section className="w-full max-w-3xl">
