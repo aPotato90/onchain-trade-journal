@@ -1,4 +1,4 @@
-export const TRADE_JOURNAL_ADDRESS = '0x8448Ba05d1a39B9c409A50DC1F9f8961897E6F49' as const
+export const TRADE_JOURNAL_ADDRESS = '0x6a0104bAbbf7dB86AA65EC3F82b28BeF42186d9E' as const
 
 export const tradeJournalAbi = [
   {
