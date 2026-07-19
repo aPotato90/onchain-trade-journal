@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { useQueryClient } from '@tanstack/react-query'
-import { baseSepolia } from 'wagmi/chains'
+import { base } from 'wagmi/chains'
 import { TRADE_JOURNAL_ADDRESS, tradeJournalAbi } from '@/config/tradeJournal'
 
 export function TradeForm() {
@@ -18,13 +18,29 @@ export function TradeForm() {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    if (isSuccess) {
+  if (isSuccess) {
+    queryClient.invalidateQueries({ queryKey: ['readContract'] })
+    // Safety net: RPC nodes can briefly lag behind the latest confirmed block,
+    // so retry the refetch a couple more times over the next few seconds.
+    const retry1 = setTimeout(() => {
       queryClient.invalidateQueries({ queryKey: ['readContract'] })
+    }, 2000)
+    const retry2 = setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ['readContract'] })
+    }, 5000)
+    return () => {
+      clearTimeout(retry1)
+      clearTimeout(retry2)
     }
-  }, [isSuccess, queryClient])
+  }
+}, [isSuccess, queryClient])
 
-  function handleSubmit(e: React.FormEvent) {
+function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (parseFloat(entryPrice) <= 0 || parseFloat(exitPrice) <= 0) {
+      alert('Entry and exit prices must be greater than 0.')
+      return
+    }
     writeContract({
       address: TRADE_JOURNAL_ADDRESS,
       abi: tradeJournalAbi,
@@ -36,10 +52,10 @@ export function TradeForm() {
         BigInt(Math.round(parseFloat(exitPrice) * 100)),
         isLong,
       ],
-      chainId: baseSepolia.id,
+      chainId: base.id,
     })
   }
-
+  
   const inputClass =
     "w-full bg-transparent border border-border rounded px-3 py-2.5 font-mono text-sm placeholder:text-muted focus:outline-none focus:border-gold transition-colors"
   const labelClass = "font-mono text-[11px] tracking-widest text-muted uppercase mb-1.5 block"
@@ -53,22 +69,22 @@ export function TradeForm() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Instrument</label>
-            <input value={instrument} onChange={(e) => setInstrument(e.target.value)} className={inputClass} />
+            <input value={instrument} onChange={(e) => setInstrument(e.target.value)} className={inputClass} required />
           </div>
           <div>
             <label className={labelClass}>Setup</label>
-            <input value={setupTag} onChange={(e) => setSetupTag(e.target.value)} placeholder="Bullish Engulfing" className={inputClass} />
+            <input value={setupTag} onChange={(e) => setSetupTag(e.target.value)} placeholder="Bullish Engulfing" className={inputClass} required />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Entry price</label>
-            <input value={entryPrice} onChange={(e) => setEntryPrice(e.target.value)} type="number" step="0.01" placeholder="0.00" className={inputClass} />
+            <input value={entryPrice} onChange={(e) => setEntryPrice(e.target.value)} type="number" step="0.01" placeholder="0.00" className={inputClass} required />
           </div>
           <div>
             <label className={labelClass}>Exit price</label>
-            <input value={exitPrice} onChange={(e) => setExitPrice(e.target.value)} type="number" step="0.01" placeholder="0.00" className={inputClass} />
+            <input value={exitPrice} onChange={(e) => setExitPrice(e.target.value)} type="number" step="0.01" placeholder="0.00" className={inputClass} required />
           </div>
         </div>
 

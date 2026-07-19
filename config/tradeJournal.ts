@@ -1,4 +1,4 @@
-export const TRADE_JOURNAL_ADDRESS = '0xbF2dCB55Fe056bae99541F28ba1587f61D85a3F0' as const
+export const TRADE_JOURNAL_ADDRESS = '0x8448Ba05d1a39B9c409A50DC1F9f8961897E6F49' as const
 
 export const tradeJournalAbi = [
   {
@@ -11,6 +11,13 @@ export const tradeJournalAbi = [
       { name: 'exitPrice', type: 'uint256' },
       { name: 'isLong', type: 'bool' },
     ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'voidTrade',
+    inputs: [{ name: 'index', type: 'uint256' }],
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -29,6 +36,7 @@ export const tradeJournalAbi = [
           { name: 'exitPrice', type: 'uint256' },
           { name: 'isLong', type: 'bool' },
           { name: 'timestamp', type: 'uint256' },
+          { name: 'voided', type: 'bool' },
         ],
       },
     ],
