@@ -7,6 +7,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center px-6 py-12 gap-10">
       <header className="w-full max-w-3xl flex items-center justify-between border-b border-border pb-6">
+        <meta name="base:app_id" content="6a6920555843cc312f8f1270" />
         <div>
           <p className="font-mono text-xs tracking-widest text-gold uppercase mb-1">
             Onchain · Base
